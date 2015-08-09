@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block "scripts" %}
+<script type="text/javascript">
+    function addToPlaylist(song_id) {
+        var data = {
+            song_id: song_id,
+            playlist_id: 1
+        }
+        $.post("/playlist/add/", data, function(response) {
+
+        });
+    }
+</script>
+{% endblock %}
+
+{% block "content" %}
+<div id="wrapper">
+    <ol>
+    {% for song in songs %}
+        <li>{{song.name}} <button onclick="addToPlaylist('{{song.id}}')">Add Song</button></li>
+    {% endfor %}
+    </ol>
+</div>
+{% endblock %}

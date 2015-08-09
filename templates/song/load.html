@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block "scripts" %}
+<script type="text/javascript">
+    function loadSongs() {
+        var directory = $("#music_dir").val();
+        $.post("/song/load/", {"directory": directory}, function() {
+            alert("Songs loadded");
+        });
+    }
+</script>
+{% endblock %}
+
+{% block "content" %}
+<input id="music_dir" name="music_dir" value="/data/home/jm/Music">
+<button onclick="loadSongs()">Load Songs!</button>
+{% endblock %}

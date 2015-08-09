@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block "scripts" %}
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <script src="/static/js/audio.min.js"></script>
+    <script src="/static/js/player.js"></script>
+{% endblock %}
+
+{% block "content" %}
+<div id="wrapper">
+    <h1>Not Playing <em></em></h1>
+    <div class="audiojs" classname="audiojs" id="audiojs_wrapper0">
+        <audio preload="" src="http://kolber.github.io/audiojs/demos/mp3/03-its-all-about-the-crystalizabeths.mp3"></audio>
+        <div class="play-pause">
+            <p class="play"></p>
+            <p class="pause"></p>
+            <p class="loading"></p>
+            <p class="error"></p>
+        </div>
+        <div class="scrubber">
+            <div class="progress" style="width: 172.629279054267px;"></div>
+            <div class="loaded" style="width: 280px;"></div>
+        </div>
+        <div class="time">
+            <em class="played">02:48</em>/<strong class="duration">04:33</strong>
+        </div>
+        <div class="error-message"></div>
+    </div>
+    <ol>
+        {% for song in songs %}
+        <li><a href="#" data-src="http://localhost:8000/song/stream/?filename={{song.path}}">{{song.name}}</a></li>
+        {% endfor %}
+    </ol>
+</div>
+{% endblock %}
