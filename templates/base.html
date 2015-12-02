@@ -1,16 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
     <meta charset="utf-8">
-    <title>Music Camping</title>
-    <meta content="width=device-width, initial-scale=0.6" name="viewport">
-    <script src="/static/js/jquery-1.11.3.min.js"></script>
-    {% block "scripts" %}{% endblock %}
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>One Click Login Admin</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link type="text/css" href="{{ STATIC_URL }}bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link type="text/css" href="{{ STATIC_URL }}bootstrap_admin/css/sb-admin-2.css" rel="stylesheet" >
+
+    <!-- Custom Fonts -->
+    <link type="text/css" href="{{ STATIC_URL }}font-awesome-4.4.0/css/font-awesome.min.css" rel="stylesheet" >
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery-1.11.3.min.js"></script>
+
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery-ui-1.11.4/jquery-ui.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link href="{{ STATIC_URL }}bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
+
+    <link href="{{ STATIC_URL }}bower_components/datatables-responsive/css/dataTables.responsive.css" rel="stylesheet">
+
+    <link href="{{ STATIC_URL }}jquery-ui-1.11.4/jquery-ui.min.css" rel="stylesheet">
+
+    <!-- JavaScript -->
+    <script src="{{ STATIC_URL }}alertify/alertify.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}alertify/css/alertify.min.css"/>
+    <!-- Default theme -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}alertify/css/themes/default.min.css"/>
+    <!-- Semantic UI theme -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}alertify/css/themes/semantic.min.css"/>
+    <!-- Bootstrap theme -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}alertify/css/themes/bootstrap.min.css"/>
+
+    <style type="text/css">
+        @media (min-width: 1200px) {
+            .col-lg-25 {
+                width: 20%;
+            }
+        }
+        pre {
+            padding-left: 15px;
+            margin-bottom: 5px;
+            margin-top: 10px;
+        }
+        .checkbox {
+            margin-bottom: 0px;
+            margin-top: 0px;
+        }
+        .panel-toggler {
+            cursor: pointer;
+        }
+        .dataTable_wrapper td {
+            vertical-align: middle !important;
+        }
+    </style>
 </head>
+
 <body>
 
-{% block "content" %}
-{% endblock %}
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/"><i class="fa fa-music"></i> MusicBerry</a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <ul class="nav navbar-nav navbar-top-links navbar-right">
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <div class="msgs-container general"></div>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            {% block content %}{% endblock %}
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="{{ STATIC_URL }}bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}bootstrap_admin.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script type="text/javascript" src="{{ STATIC_URL }}bootstrap_admin/js/sb-admin-2.js"></script>
+
+    <!-- Datatables -->
+    <script type="text/javascript" src="{{ STATIC_URL }}DataTables-1.10.9/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}DataTables-1.10.9/js/dataTables.bootstrap.min.js"></script>
+
+    {% block js %}{% endblock %}
 
 </body>
+
 </html>

@@ -1,4 +1,5 @@
 from base import BaseView
+from music.services.song import SongService
 import os.path
 from music.models import PlayList, Song
 
@@ -19,8 +20,7 @@ class SelectView(BaseView):
 
     def get(self, *args, **kwrags):
 
-        songs = Song.objects.all()
-        return self.render_to_response({"songs": songs})
+        return self.render_to_response({})
 
 
 class AddView(BaseView):
@@ -50,3 +50,13 @@ class DeleteView(BaseView):
         song.delete()
 
         return self.response("ok")
+
+
+class SongListView(BaseView):
+
+    def get(self, *args, **kwargs):
+
+        columnIndexNameMap = { 0: 'name', 1: lambda song: self.render("playlist/actions.html", {"song": song}) }
+        sortIndexNameMap = { 0: 'name' , 1: None, }
+
+        return SongService().open_search(self.request, columnIndexNameMap, sortIndexNameMap)
