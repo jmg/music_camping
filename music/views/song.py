@@ -5,7 +5,18 @@ import mimetypes
 from django.http import StreamingHttpResponse
 from django.core.servers.basehttp import FileWrapper
 from music.models import Song
+from music.services.song import SongService
 import eyed3
+
+
+class SongListView(BaseView):
+
+    def get(self, *args, **kwargs):
+
+        columnIndexNameMap = { 0: 'name', 1: lambda song: self.render("song/actions.html", {"song": song }) }
+        sortIndexNameMap = { 0: 'name' , 1: None, }
+
+        return SongService().open_search(self.request, columnIndexNameMap, sortIndexNameMap)
 
 
 class StreamView(BaseView):

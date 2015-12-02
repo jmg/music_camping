@@ -10,8 +10,7 @@ class PlayingView(BaseView):
 
     def get(self, *args, **kwrags):
 
-        playlist = PlayList.objects.get(id=1)
-        return self.render_to_response({"songs": playlist.songs.all()})
+        return self.render_to_response({})
 
 
 class SelectView(BaseView):
@@ -52,11 +51,18 @@ class DeleteView(BaseView):
         return self.response("ok")
 
 
-class SongListView(BaseView):
+
+class PlayingListView(BaseView):
 
     def get(self, *args, **kwargs):
 
-        columnIndexNameMap = { 0: 'name', 1: lambda song: self.render("playlist/actions.html", {"song": song}) }
+        playlist = PlayList.objects.get(id=1)
+        qs = playlist.songs.all()
+
+        columnIndexNameMap = {
+            0: lambda song: self.render("playlist/song_stream.html", {"song": song }),
+            1: lambda song: self.render("playlist/actions.html", {"song": song })
+        }
         sortIndexNameMap = { 0: 'name' , 1: None, }
 
-        return SongService().open_search(self.request, columnIndexNameMap, sortIndexNameMap)
+        return SongService().open_search(self.request, columnIndexNameMap, sortIndexNameMap, qs=qs)

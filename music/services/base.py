@@ -246,7 +246,7 @@ class BaseService(object):
             if not data.get(param):
                 data[param] = None
 
-    def open_search(self, request, columnIndexNameMap, columnSortIndexNameMap, extra_response_params={}, *args, **kwargs):
+    def open_search(self, request, columnIndexNameMap, columnSortIndexNameMap, extra_response_params={}, qs=None, *args, **kwargs):
 
         open_search_data = parse(request.META["QUERY_STRING"])
         sort_prop_name = None
@@ -255,10 +255,13 @@ class BaseService(object):
             if open_search_data['sSortDir_0'] == "desc":
                 sort_prop_name = "-%s" % sort_prop_name
 
-        if sort_prop_name:
-            querySet = self.filter(*args, **kwargs).order_by(sort_prop_name)
+        if qs is None:
+            if sort_prop_name:
+                querySet = self.filter(*args, **kwargs).order_by(sort_prop_name)
+            else:
+                querySet = self.filter(*args, **kwargs)
         else:
-            querySet = self.filter(*args, **kwargs)
+            querySet = qs.filter(*args, **kwargs)
 
         cols = int(len(columnIndexNameMap)) # Get the number of columns
         iDisplayLength =  min(int(open_search_data.get('length',10)),100)     #Safety measure. If someone messes with iDisplayLength manually, we clip it to the max value of 100.
