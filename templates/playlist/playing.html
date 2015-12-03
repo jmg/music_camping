@@ -42,6 +42,9 @@
 {% block content %}
 <div id="player-wrapper">
     <h1 class="song-title">Not Playing <em></em></h1>
+
+    <input id="current-song" type="hidden" value="{{playlist.current_song.to_json}}">
+
     <div class="audiojs" classname="audiojs" id="audiojs_wrapper0">
         <audio></audio>
         <div class="play-pause">
@@ -61,6 +64,13 @@
     </div>
 </div>
 
+<br>
+<button class="btn btn-primary" onclick="player.play()"><i class="fa fa-play"></i> Play</button>
+<button class="btn btn-warning" onclick="player.pause()"><i class="fa fa-pause"></i> Pause</button>
+<button class="btn btn-danger" onclick="player.stop()"><i class="fa fa-stop"></i> Stop</button>
+<button class="btn btn-success" onclick="player.next()"><i class="fa fa-next"></i> Next</button>
+<button class="btn btn-success" onclick="player.previous()"><i class="fa fa-previous"></i> Previous</button>
+
 <div style="margin-top: 20px;" class="panel panel-default">
     <div class="panel-heading panel-toggler">
         <i class="fa fa-list"></i> PlayingList
@@ -76,10 +86,6 @@
                     </tr>
                 </thead>
             </table>
-            {% for song in songs %}
-                <li>{{song.name}} </li>
-            {% endfor %}
-            </ol>
         </div>
     </div>
 </div>

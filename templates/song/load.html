@@ -12,6 +12,14 @@
 {% endblock %}
 
 {% block content %}
-<input id="music_dir" name="music_dir" value="/data/home/jm/Music">
-<button onclick="loadSongs()">Load Songs!</button>
+<div style="margin-top: 20px;" class="panel panel-default">
+    <div class="panel-heading panel-toggler">
+        <i class="fa fa-upload"></i> Load Songs
+    </div>
+
+    <div class="panel-body">
+        <input id="music_dir" name="music_dir" class="form-control" value="/data/home/jm/Music">
+        <button class="btn btn-primary" onclick="loadSongs()">Load Songs!</button>
+    </div>
+</div>
 {% endblock %}

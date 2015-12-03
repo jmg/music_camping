@@ -10,7 +10,37 @@ class PlayingView(BaseView):
 
     def get(self, *args, **kwrags):
 
-        return self.render_to_response({})
+        playlist = PlayList.objects.get(id=1)
+        return self.render_to_response({"playlist": playlist})
+
+
+class ChangeSongView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        is_next = self.request.POST.get("next") is not None
+        is_prev = self.request.POST.get("prev") is not None
+
+        playlist = PlayList.objects.get(id=1)
+
+        if is_next:
+            songs = playlist.songs.filter(id__gt=playlist.current_song.id).order_by("id")[0:1]
+        if is_prev:
+            songs = playlist.songs.filter(id__lt=playlist.current_song.id).order_by("-id")[0:1]
+
+        if songs:
+            song = songs[0]
+        else:
+            songs = playlist.songs.all()
+            if songs:
+                song = songs[0]
+            else:
+                return self.response("No songs found")
+
+        playlist.current_song = song
+        playlist.save()
+
+        return self.response(song.to_json())
 
 
 class SelectView(BaseView):

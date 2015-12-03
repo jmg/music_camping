@@ -62,6 +62,11 @@
             <!-- /.navbar-header -->
 
             <ul class="nav navbar-nav navbar-top-links navbar-right">
+                {% if request.user.is_superuser %}
+                <li> <a href="/song/load" ><i class="fa fa-upload"></i> Load Songs</a> </li>
+                {% endif %}
+                <li> <a href="/" ><i class="fa fa-music"></i> Add Songs </a> </li>
+                <li> <a href="/playlist" ><i class="fa fa-list"></i> See Playlist </a> </li>
             </ul>
             <!-- /.navbar-top-links -->
 

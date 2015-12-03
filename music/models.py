@@ -1,4 +1,5 @@
 from django.db import models
+import simplejson as json
 
 
 class Config(models.Model):
@@ -30,6 +31,18 @@ class Song(models.Model):
     name = models.CharField(max_length=1000)
     artist = models.CharField(max_length=1000)
     genre = models.CharField(max_length=1000)
+
+    def get_streaming_url(self):
+
+        return "http://localhost:8000/song/stream/?filename={0}".format(self.path)
+
+    def to_json(self):
+
+        return json.dumps({
+            "id": self.id,
+            "name": self.name,
+            "uri": self.get_streaming_url(),
+        })
 
 
 class UserProfile(models.Model):
