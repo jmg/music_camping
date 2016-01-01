@@ -1,5 +1,6 @@
 from base import BaseView
 from music.services.song import SongService
+from music.services.player import player
 import os.path
 from music.models import PlayList, Song
 
@@ -25,22 +26,53 @@ class ChangeSongView(BaseView):
 
         if is_next:
             songs = playlist.songs.filter(id__gt=playlist.current_song.id).order_by("id")[0:1]
-        if is_prev:
+        elif is_prev:
             songs = playlist.songs.filter(id__lt=playlist.current_song.id).order_by("-id")[0:1]
 
         if songs:
             song = songs[0]
         else:
-            songs = playlist.songs.all()
+            if is_next:
+                songs = playlist.songs.order_by("id")
+            elif is_prev:
+                songs = playlist.songs.order_by("-id")
+
             if songs:
                 song = songs[0]
             else:
-                return self.response("No songs found")
+                return self.json_response({"error": "No songs found"})
 
         playlist.current_song = song
         playlist.save()
 
         return self.response(song.to_json())
+
+
+class PlayView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        song = Song.objects.get(id=self.request.POST.get("song_id"))
+        player.stop()
+        player.play(song.path)
+
+        return self.response("ok")
+
+
+class StopView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        player.stop()
+        return self.response("ok")
+
+
+class PauseView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        player.pause()
+        return self.response("ok")
 
 
 class SelectView(BaseView):
@@ -81,7 +113,6 @@ class DeleteView(BaseView):
         return self.response("ok")
 
 
-
 class PlayingListView(BaseView):
 
     def get(self, *args, **kwargs):
@@ -90,8 +121,8 @@ class PlayingListView(BaseView):
         qs = playlist.songs.all()
 
         columnIndexNameMap = {
-            0: lambda song: self.render("playlist/song_stream.html", {"song": song }),
-            1: lambda song: self.render("playlist/actions.html", {"song": song })
+            0: lambda song: self.render("playlist/song_stream.html", {"song": song, "playlist": playlist }),
+            1: lambda song: self.render("playlist/actions.html", {"song": song, "playlist": playlist })
         }
         sortIndexNameMap = { 0: 'name' , 1: None, }
 

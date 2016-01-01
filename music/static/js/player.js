@@ -4,27 +4,26 @@ $(document).ready(function() {
 
         var playerEl = $("#player-wrapper");
         var songTitleEl = playerEl.find(".song-title");
+        var currentSong = null;
 
-        var a = audiojs.createAll({
-            trackEnded: function() {
-                that.next();
-            }
-        });
-
-        var audio = a[0];
-
-        var setSong = function(song) {
+        var _play = function(song) {
 
             $("#current-song").val(JSON.stringify(song));
+            var currentSongEl = $("#song-" + song.id);
+            that.activateSong(currentSongEl);
 
-            audio.load(song.uri);
-            audio.play();
-            songTitleEl.html(song.name);
+            $.post("/playlist/play/", {"song_id": song.id }, function() {
+
+                songTitleEl.html(song.name);
+            });
         }
 
         this.stop = function() {
 
-            audio.stop();
+            $.post("/playlist/stop/", {}, function() {
+
+                songTitleEl.html("Stopped");
+            });
         }
 
         this.playSong = function(el, e) {
@@ -32,13 +31,21 @@ $(document).ready(function() {
             e.preventDefault();
 
             var song = $(el).data("song");
-            setSong(song);
+            _play(song);
         }
 
         this.play = function() {
 
-            var currentSong = getCurrentSong();
-            setSong(currentSong);
+            currentSong = getCurrentSong();
+            _play(currentSong);
+        }
+
+        this.pause = function() {
+
+            $.post("/playlist/pause/", {}, function() {
+
+                songTitleEl.html("Paused");
+            });
         }
 
         var getCurrentSong = function() {
@@ -47,7 +54,7 @@ $(document).ready(function() {
 
         var changesong = function(next) {
 
-            var currentSong = getCurrentSong();
+            currentSong = getCurrentSong();
             var params = {}
 
             if (next) {
@@ -59,8 +66,7 @@ $(document).ready(function() {
             $.post("/playlist/changesong/", params, function(song) {
 
                 song = JSON.parse(song);
-                setSong(song);
-                that.play();
+                _play(song);
             });
         }
 
@@ -72,6 +78,12 @@ $(document).ready(function() {
         this.previous = function() {
 
             changesong(false);
+        }
+
+        this.activateSong = function(currentSongEl) {
+
+            $(".active-song").removeClass("active-song");
+            currentSongEl.closest("tr").addClass("active-song");
         }
 
         var that = this;

@@ -1,1 +1,7 @@
-<div><a href="#" onclick="player.playSong(this, event)" data-song="{{song.to_json}}">{{song.name}}</a>
+<div id="song-{{song.id}}" {% if playlist.current_song.id == song.id %}class="active-song"{% endif %}><a href="#" onclick="player.playSong(this, event)" data-song="{{song.to_json}}">{{song.name}}</a>
+
+{% if playlist.current_song.id == song.id %}
+<script type="text/javascript">
+    player.activateSong($(".active-song"));
+</script>
+{% endif %}
