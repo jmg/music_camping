@@ -14,7 +14,7 @@ $(document).ready(function() {
 
             $.post("/playlist/play/", {"song_id": song.id }, function() {
 
-                songTitleEl.html(song.name);
+                songTitleEl.html("Playing: " + song.name);
             });
         }
 

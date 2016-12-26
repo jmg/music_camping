@@ -236,3 +236,11 @@ tr.active-song {
     background: #cacaca !important;
     color: #FFF;
 }
+
+.song-title {
+    font-size: 22px;
+}
+
+#play-list_length {
+    display: none;
+}

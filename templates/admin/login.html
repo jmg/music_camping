@@ -1,36 +1,5 @@
 {% extends "base.html" %}
 
-{% block js %}
-<script type="text/javascript">
-    function addToPlaylist(song_id) {
-        var data = {
-            song_id: song_id,
-            playlist_id: 1
-        }
-        $.post("/playlist/add/", data, function(response) {
-
-        });
-    }
-
-    var table = $("#songs-list").DataTable({
-
-        "autoWidth" : false,
-        "processing": true,
-        "serverSide": true,
-        "iDisplayLength" : 50,
-        "responsive": true,
-        "ajax": '/song/songlist/',
-        "columns": [
-            { "searchable": true},
-            { "searchable": false }
-          ],
-        "searchCols": [
-            {"search": "name"}
-        ]
-    });
-</script>
-{% endblock %}
-
 {% block content %}
 
 <div class="container">

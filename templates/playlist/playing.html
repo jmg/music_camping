@@ -11,6 +11,7 @@
         "serverSide": true,
         "iDisplayLength" : 50,
         "responsive": true,
+        "processing": false,
         "ajax": '/playlist/playinglist/',
         "columns": [
             { "searchable": true},
@@ -21,19 +22,17 @@
         ]
     });
 
+    setInterval(function() {
+
+        playingTable.ajax.reload();
+
+    }, 1000);
+
     function deleteFromPlaylist(song_id) {
         $.post("/playlist/delete/", {song_id: song_id}, function() {
-            playingTable.refresh();
-        })
-    }
-    function addToPlaylist(song_id) {
-        var data = {
-            song_id: song_id,
-            playlist_id: 1
-        }
-        $.post("/playlist/add/", data, function(response) {
 
-        });
+            playingTable.reload();
+        })
     }
 </script>
 {% endblock %}
@@ -44,7 +43,7 @@
 
     <input id="current-song" type="hidden" value="{{playlist.current_song.to_json}}">
 
-    <div class="audiojs" classname="audiojs" id="audiojs_wrapper0">
+    <!--<div class="audiojs" classname="audiojs" id="audiojs_wrapper0">
         <audio></audio>
         <div class="play-pause">
             <p class="play"></p>
@@ -61,18 +60,21 @@
         </div>
         <div class="error-message"></div>
     </div>
+    -->
 </div>
 
+{% if request.user.is_superuser %}
 <br>
-<button class="btn btn-primary" onclick="player.play()"><i class="fa fa-play"></i> Play</button>
-<button class="btn btn-warning" onclick="player.pause()"><i class="fa fa-pause"></i> Pause</button>
-<button class="btn btn-danger" onclick="player.stop()"><i class="fa fa-stop"></i> Stop</button>
-<button class="btn btn-success" onclick="player.next()"><i class="fa fa-next"></i> Next</button>
-<button class="btn btn-success" onclick="player.previous()"><i class="fa fa-previous"></i> Previous</button>
+<button class="btn btn-primary" onclick="player.play()"><i class="fa fa-play"></i></button>
+<button class="btn btn-warning" onclick="player.pause()"><i class="fa fa-pause"></i></button>
+<button class="btn btn-danger" onclick="player.stop()"><i class="fa fa-stop"></i></button>
+<button class="btn btn-success" onclick="player.next()"><i class="fa fa-forward"></i></button>
+<button class="btn btn-success" onclick="player.previous()"><i class="fa fa-backward"></i></button>
+{% endif %}
 
 <div style="margin-top: 20px;" class="panel panel-default">
     <div class="panel-heading panel-toggler">
-        <i class="fa fa-list"></i> PlayingList
+        <i class="fa fa-list"></i> Playing List
     </div>
 
     <div class="panel-body">

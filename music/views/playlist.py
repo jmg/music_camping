@@ -52,9 +52,14 @@ class PlayView(BaseView):
 
     def post(self, *args, **kwrags):
 
+        playlist = PlayList.objects.get(id=1)
         song = Song.objects.get(id=self.request.POST.get("song_id"))
+
         player.stop()
         player.play(song.path)
+
+        playlist.current_song = song
+        playlist.save()
 
         return self.response("ok")
 
@@ -106,9 +111,11 @@ class DeleteView(BaseView):
 
     def post(self, *args, **kwrags):
 
+        playlist, created = PlayList.objects.get_or_create(id=1)
+
         song_id = self.request.POST.get("song_id")
         song = Song.objects.get(id=song_id)
-        song.delete()
+        playlist.songs.remove(song)
 
         return self.response("ok")
 

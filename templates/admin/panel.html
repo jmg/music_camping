@@ -4,9 +4,9 @@
 <script type="text/javascript">
     function loadSongs() {
         var directory = $("#music_dir").val();
-        $.post("/song/load/", {"directory": directory}, function() {
-            alert("Songs loaded");
-        });
+        $.post("/admin/loadsongs/", {"directory": directory}, function(response) {
+            $.info(response.count + " new songs loaded");
+        }, 'json');
     }
 </script>
 {% endblock %}
@@ -18,7 +18,7 @@
     </div>
 
     <div class="panel-body">
-        <input id="music_dir" name="music_dir" class="form-control" value="/data/home/jm/Music">
+        <input id="music_dir" name="music_dir" class="form-control" value="{{home_dir}}/Music">
         <button style="margin-top: 10px;" class="btn btn-primary" onclick="loadSongs()">Load Songs!</button>
     </div>
 </div>

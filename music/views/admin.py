@@ -1,6 +1,12 @@
 from base import BaseView
 from django.contrib.auth import authenticate, login
 
+import os
+import mimetypes
+from music.models import Song
+from music.services.song import SongService
+import eyeD3
+
 
 class LoginView(BaseView):
 
@@ -24,16 +30,17 @@ class PanelView(BaseView):
 
     def get(self, *args, **kwargs):
 
-        return self.render_to_response({})
+        home_dir = os.path.expanduser('~')
+        return self.render_to_response({"home_dir": home_dir})
 
 
-class LoadView(BaseView):
+class LoadSongsView(BaseView):
 
     def post(self, *args, **kwargs):
 
         directory = self.request.POST.get("directory")
-        self.get_songs_for_dir(directory)
-        return self.response("ok")
+        songs = self.get_songs_for_dir(directory)
+        return self.json_response({"count": len(songs)})
 
     def get_songs_for_dir(self, directory):
 
@@ -46,7 +53,7 @@ class LoadView(BaseView):
                     tag = eyeD3.Tag()
                     tag.link(path)
 
-                    song, _ = Song.objects.get_or_create(
+                    song, created = Song.objects.get_or_create(
                         path=path,
                         defaults={
                             "name": tag.getTitle(),
@@ -55,7 +62,8 @@ class LoadView(BaseView):
                         }
                     )
                     song.save()
-                    songs.append(song)
+                    if created:
+                        songs.append(song)
 
         return songs
 
