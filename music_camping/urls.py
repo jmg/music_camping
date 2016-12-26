@@ -8,7 +8,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^django/admin/', include(admin.site.urls)),
 )
 
 UrlsManager(urlpatterns, views_root)
