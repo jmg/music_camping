@@ -1,0 +1,3 @@
+<h1 class="song-title">{% if playlist.current_song and player.is_playing %}Playing: {{playlist.current_song.name}}{% else %}Not Playing{% endif %} <em></em></h1>
+
+<div class="song-time">{{player.get_position}}</div>
