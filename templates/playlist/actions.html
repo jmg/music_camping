@@ -1,3 +1,9 @@
-{% if request.user.is_superuser %}
+{% if True or request.user.is_superuser %}
+
+<button class="btn btn-primary" onclick="moveUpOnPlaylist(this, '{{song.id}}')"><i title="Move up" class="fa fa-arrow-up"></i></button>
+
+<button class="btn btn-primary" onclick="moveDownOnPlaylist(this, '{{song.id}}')"><i title="Move down" class="fa fa-arrow-down"></i></button>
+
 <button class="btn btn-danger" onclick="deleteFromPlaylist('{{song.id}}')"><i title="Remove From Playlist" class="fa fa-remove"></i></button>
+
 {% endif %}

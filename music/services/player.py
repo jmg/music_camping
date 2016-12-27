@@ -18,6 +18,7 @@ class Player(object):
             self.player.set_state(gst.STATE_PLAYING)
         except:
             pass
+
         bus = self.player.get_bus()
         bus.add_watch(self.eventListener)
 
@@ -38,7 +39,7 @@ class Player(object):
         if self.is_playing():
             self.player.set_state(gst.STATE_PAUSED)
 
-    def getPosition(self):
+    def get_position(self):
         if self.is_playing():
             pos = None
             while not pos:
@@ -46,9 +47,11 @@ class Player(object):
                     pos = self.player.query_position(self.time_format, None)[0]
                 except:
                     pass
-            return self.convertTime(pos)
+            return self.convert_time(pos)
 
-    def getSeekedPosition(self):
+        return "00:00"
+
+    def get_seeked_position(self):
         if self.is_playing():
             pos = None
             while not pos:
@@ -58,7 +61,7 @@ class Player(object):
                     pass
             return pos
 
-    def getSeekableDuration(self):
+    def get_seekable_duration(self):
         return self.player.query_duration(gst.FORMAT_TIME, None)[0]
 
     def seek(self, position):
@@ -93,7 +96,7 @@ class Player(object):
             return True
         return False
 
-    def convertTime(self, time):
+    def convert_time(self, time):
         time_int = time / 1000000000
         mins = time_int / 60
         segs = time_int % 60
@@ -107,15 +110,7 @@ class Player(object):
         else:
             segs = str(segs)
 
-#        milisegs = (time / 1000000) % 1000
-#        if milisegs < 100:
-#            milisegs = "0" + str(milisegs)
-#        elif milisegs < 10:
-#            milisegs = "00" + str(milisegs)
-#        else:
-#            milisegs = str(milisegs)
-
-        return mins + ":" + segs #+ "." + milisegs
+        return mins + ":" + segs
 
 
 player = Player()

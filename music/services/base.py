@@ -261,7 +261,10 @@ class BaseService(object):
             else:
                 querySet = self.filter(*args, **kwargs)
         else:
-            querySet = qs.filter(*args, **kwargs)
+            if isinstance(qs, list):
+                querySet = qs
+            else:
+                querySet = qs.filter(*args, **kwargs)
 
         cols = int(len(columnIndexNameMap)) # Get the number of columns
         iDisplayLength =  min(int(open_search_data.get('length',10)),100)     #Safety measure. If someone messes with iDisplayLength manually, we clip it to the max value of 100.
@@ -291,7 +294,10 @@ class BaseService(object):
 
         sEcho = int(open_search_data.get('sEcho',0)) # required echo response
 
-        iTotalRecords = iTotalDisplayRecords = querySet.count() #count how many records match the final criteria
+        if isinstance(querySet, list):
+            iTotalRecords = iTotalDisplayRecords = len(querySet)
+        else:
+            iTotalRecords = iTotalDisplayRecords = querySet.count() #count how many records match the final criteria
         querySet = querySet[startRecord:endRecord] #get the slice
 
         keys = columnIndexNameMap.keys()

@@ -13,8 +13,18 @@ class SongListView(BaseView):
 
     def get(self, *args, **kwargs):
 
-        columnIndexNameMap = { 0: 'name', 1: lambda song: self.render("song/actions.html", {"song": song }) }
-        sortIndexNameMap = { 0: 'name' , 1: None, }
+        columnIndexNameMap = {
+            0: 'name',
+            1: 'album',
+            2: 'artist',
+            3: lambda song: self.render("song/actions.html", {"song": song })
+        }
+        sortIndexNameMap = {
+            0: 'name',
+            1: 'album',
+            2: 'artist',
+            3: None,
+        }
 
         return SongService().open_search(self.request, columnIndexNameMap, sortIndexNameMap)
 

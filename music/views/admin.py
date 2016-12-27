@@ -69,7 +69,7 @@ class LoadSongsView(BaseView):
 
     def valid_format(self, name):
 
-        validFormats = ['.mp3','.wav','.wma', '.avi', '.ogg']
+        validFormats = ['.mp3','.wav','.wma', '.avi', '.ogg', '.flac']
         for format in validFormats:
             if name.find(format) != -1:
                 return True

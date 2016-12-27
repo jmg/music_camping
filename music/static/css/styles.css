@@ -241,6 +241,11 @@ tr.active-song {
     font-size: 22px;
 }
 
-#play-list_length {
+#play-list_length, #songs-list_length {
     display: none;
+}
+
+table td:last-child {
+    width: 1%;
+    white-space: nowrap;
 }

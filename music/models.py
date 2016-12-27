@@ -21,7 +21,7 @@ class AdminUser(models.Model):
 
 class PlayList(models.Model):
 
-    songs = models.ManyToManyField("Song", related_name="playlist_songs")
+    songs = models.ManyToManyField("Song", related_name="playlist_songs", through='PlayListSong')
     current_song = models.OneToOneField("Song", null=True, blank=True)
 
 
@@ -44,6 +44,25 @@ class Song(models.Model):
             "name": self.name,
             "uri": self.get_streaming_url(),
         })
+
+    def __str__(self):
+
+        return self.name
+
+
+class PlayListSong(models.Model):
+
+    song = models.ForeignKey("Song")
+    playlist = models.ForeignKey("Playlist")
+    sort = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ('sort',)
+
+    def __str__(self):
+
+        return "%s - %s" % (self.song.name, self.sort)
+
 
 
 class UserProfile(models.Model):
