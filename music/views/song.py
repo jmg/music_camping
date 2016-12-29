@@ -4,9 +4,7 @@ import os
 import mimetypes
 from django.http import StreamingHttpResponse
 from django.core.servers.basehttp import FileWrapper
-from music.models import Song
 from music.services.song import SongService
-import eyeD3
 
 
 class SongListView(BaseView):

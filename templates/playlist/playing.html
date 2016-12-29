@@ -21,16 +21,42 @@
           ],
         "searchCols": [
             {"search": "name"}
-        ]
+        ],
+        //"rowReorder": true
     });
 
-    setInterval(function() {
+    playingTable.on('row-reorder', function (e, diff, edit) {
 
-        /*playingTable.ajax.reload();
+        var newData = [];
+        for (var i=0; i < diff.length; i++) {
+
+            var obj = diff[i];
+            var data = {}
+
+            data.song_id = $(obj.oldData).attr("id").replace("song-", "");
+            data.new_position = obj.newPosition;
+            data.old_position = obj.oldPosition;
+
+            newData.push(data);
+        }
+
+        $.post("/playlist/bulkmovesong/", {data: JSON.stringify(newData)}, function() {
+
+            playingTable.ajax.reload();
+        });
+    });
+
+
+    function refreshData() {
+
+        playingTable.ajax.reload();
         $.get("/playlist/currentsong/", {}, function(response) {
             $("#current-song-container").html(response);
-        });*/
+        });
+    }
 
+    setInterval(function() {
+        refreshData();
     }, 1000);
 
     function deleteFromPlaylist(song_id) {
@@ -55,6 +81,28 @@
             playingTable.ajax.reload();
         });
     }
+
+    $(document).ready(function() {
+        $("#song-volume").slider({
+            min: 0,
+            max: 100,
+            values: [{{player.get_volume}}],
+            slide: function( event, ui ) {
+
+                var data = {"volume": ui.value}
+                $.post("/playlist/setvolume/", data, function() {
+
+                });
+            },
+            stop: function( event, ui ) {
+
+                var data = {"volume": ui.value}
+                $.post("/playlist/setvolume/", data, function() {
+
+                });
+            }
+        });
+    })
 </script>
 {% endblock %}
 
@@ -93,11 +141,13 @@
 <button class="btn btn-danger" onclick="player.stop()"><i class="fa fa-stop"></i></button>
 <button class="btn btn-success" onclick="player.next()"><i class="fa fa-forward"></i></button>
 <button class="btn btn-success" onclick="player.previous()"><i class="fa fa-backward"></i></button>
+<i style="margin-left: 5px" class="fa fa-volume-up"></i>
+<div style="width: 15%; display: inline-block; position: relative; top: 2px; left: 7px" id="song-volume"></div>
 {% endif %}
 
 <div style="margin-top: 20px;" class="panel panel-default">
     <div class="panel-heading panel-toggler">
-        <i class="fa fa-list"></i> Playing List
+        <i class="fa fa-list"></i> Playlist
     </div>
 
     <div class="panel-body">

@@ -1,11 +1,7 @@
+import os.path
 from base import BaseView
 from django.contrib.auth import authenticate, login
-
-import os
-import mimetypes
-from music.models import Song
-from music.services.song import SongService
-import eyeD3
+from music.services.config import ConfigService
 
 
 class LoginView(BaseView):
@@ -39,38 +35,7 @@ class LoadSongsView(BaseView):
     def post(self, *args, **kwargs):
 
         directory = self.request.POST.get("directory")
-        songs = self.get_songs_for_dir(directory)
+        songs = ConfigService().save_songs_for_dir(directory)
+
         return self.json_response({"count": len(songs)})
 
-    def get_songs_for_dir(self, directory):
-
-        songs = []
-        for directory, sub_folders, files in os.walk(directory):
-            for file in files:
-                if self.valid_format(file):
-                    path = os.path.join(directory, file)
-
-                    tag = eyeD3.Tag()
-                    tag.link(path)
-
-                    song, created = Song.objects.get_or_create(
-                        path=path,
-                        defaults={
-                            "name": tag.getTitle(),
-                            "artist": tag.getArtist(),
-                            "album": tag.getAlbum(),
-                        }
-                    )
-                    song.save()
-                    if created:
-                        songs.append(song)
-
-        return songs
-
-    def valid_format(self, name):
-
-        validFormats = ['.mp3','.wav','.wma', '.avi', '.ogg', '.flac']
-        for format in validFormats:
-            if name.find(format) != -1:
-                return True
-        return False

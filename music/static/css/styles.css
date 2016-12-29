@@ -249,3 +249,11 @@ table td:last-child {
     width: 1%;
     white-space: nowrap;
 }
+
+.clickable {
+    cursor: pointer;
+}
+
+#song-slider {
+    margin-top: 5px;
+}

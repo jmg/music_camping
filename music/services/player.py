@@ -1,16 +1,16 @@
 import gst
-
+import time
 
 class Player(object):
 
     def __init__(self):
+
         self.player = gst.element_factory_make("playbin", "player")
         self.time_format = gst.Format(gst.FORMAT_TIME)
 
-    def play(self, path, next=None, id=None):
-        self.next = next
-        self.id = id
+    def play(self, path, callback=None):
 
+        self.callback = callback
         uri = self.get_uri(path)
 
         self.player.set_property('uri', uri)
@@ -20,7 +20,7 @@ class Player(object):
             pass
 
         bus = self.player.get_bus()
-        bus.add_watch(self.eventListener)
+        bus.add_watch(self.event_listener)
 
     def get_uri(self, path):
         if path.find("http://") != -1 or path.find("file://") != -1:
@@ -39,17 +39,28 @@ class Player(object):
         if self.is_playing():
             self.player.set_state(gst.STATE_PAUSED)
 
-    def get_position(self):
+    def get_raw_position(self):
+
+        return self.get_position(convert_time=False)
+
+    def get_position(self, convert_time=True):
+
         if self.is_playing():
+
             pos = None
             while not pos:
                 try:
                     pos = self.player.query_position(self.time_format, None)[0]
                 except:
                     pass
-            return self.convert_time(pos)
 
-        return "00:00"
+            if convert_time:
+                return self.convert_time(pos)
+            return pos
+
+        if convert_time:
+            return "00:00"
+        return 0
 
     def get_seeked_position(self):
         if self.is_playing():
@@ -62,38 +73,60 @@ class Player(object):
             return pos
 
     def get_seekable_duration(self):
-        return self.player.query_duration(gst.FORMAT_TIME, None)[0]
+        try:
+            return self.player.query_duration(self.time_format, None)[0]
+        except:
+            return 0
 
     def seek(self, position):
+
         self.player.seek(1.0, gst.FORMAT_TIME, gst.SEEK_FLAG_FLUSH, gst.SEEK_TYPE_SET, position, gst.SEEK_TYPE_NONE,0)
 
     def change_volume(self, volume):
-        self.player.set_property("volume",volume)
+
+        self.player.set_property("volume", float(int(volume)/100.0))
+
+    def get_volume(self):
+
+        return self.player.get_property("volume") * 100
 
     def is_playing(self):
+
         self.state = self.player.get_state()[1]
         if self.state.value_nick == 'playing':
             return True
         return False
 
     def is_paused(self):
+
         self.state = self.player.get_state()[1]
         if self.state.value_nick == 'paused':
             return True
         return False
 
-    def eventListener(self, bus, event):
+    def event_listener(self, bus, event):
+
         if event.type == gst.MESSAGE_EOS:
-            self.next()
+            #NOT WORKING (EVENT DONT FIRE)
+            if self.callback:
+                self.callback()
+
         return True
 
     #solucion no optima
-    def songFinished(self):
-        pos = self.getPosition()
-        time.sleep(2)
-        newPos = self.getPosition()
-        if pos == newPos:
+    def song_finished(self):
+
+        if not self.is_playing():
+            time.sleep(1)
+            return False
+
+        current_pos = self.get_position(convert_time=False)
+        time.sleep(1)
+        new_position = self.get_position(convert_time=False)
+
+        if current_pos == new_position:
             return True
+
         return False
 
     def convert_time(self, time):

@@ -1,8 +1,7 @@
 from base import BaseView
 from music.services.song import SongService
-from music.services.player import player
-import os.path
 from music.models import PlayList, Song, PlayListSong
+import threading
 
 
 class PlayingView(BaseView):
@@ -12,7 +11,7 @@ class PlayingView(BaseView):
     def get(self, *args, **kwrags):
 
         playlist, _ = PlayList.objects.get_or_create(id=1)
-        return self.render_to_response({"playlist": playlist, "player": player})
+        return self.render_to_response({"playlist": playlist, "player": SongService().player})
 
 
 class ChangeSongView(BaseView):
@@ -22,44 +21,19 @@ class ChangeSongView(BaseView):
         is_next = self.request.POST.get("next") is not None
         is_prev = self.request.POST.get("prev") is not None
 
-        playlist, _ = PlayList.objects.get_or_create(id=1)
+        try:
+            playlist_song = SongService().change_song(is_next=is_next, is_prev=is_prev)
+        except Exception, e:
+            return self.json_response({"error": str(e)})
 
-        if is_next:
-            songs = playlist.songs.filter(id__gt=playlist.current_song.id).order_by("-sort")[0:1]
-        elif is_prev:
-            songs = playlist.songs.filter(id__lt=playlist.current_song.id).order_by("-sort")[0:1]
-
-        if songs:
-            song = songs[0]
-        else:
-            if is_next:
-                songs = playlist.songs.order_by("id")
-            elif is_prev:
-                songs = playlist.songs.order_by("-id")
-
-            if songs:
-                song = songs[0]
-            else:
-                return self.json_response({"error": "No songs found"})
-
-        playlist.current_song = song
-        playlist.save()
-
-        return self.response(song.to_json())
+        return self.response(playlist_song.song.to_json())
 
 
 class PlayView(BaseView):
 
     def post(self, *args, **kwrags):
 
-        playlist = PlayList.objects.get(id=1)
-        song = Song.objects.get(id=self.request.POST.get("song_id"))
-
-        player.stop()
-        player.play(song.path)
-
-        playlist.current_song = song
-        playlist.save()
+        SongService().play_song(self.request.POST.get("song_id"))
 
         return self.response("ok")
 
@@ -68,7 +42,7 @@ class StopView(BaseView):
 
     def post(self, *args, **kwrags):
 
-        player.stop()
+        SongService().player.stop()
         return self.response("ok")
 
 
@@ -76,7 +50,7 @@ class PauseView(BaseView):
 
     def post(self, *args, **kwrags):
 
-        player.pause()
+        SongService().player.pause()
         return self.response("ok")
 
 
@@ -94,27 +68,10 @@ class AddView(BaseView):
     def post(self, *args, **kwrags):
 
         song_id = self.request.POST.get("song_id")
-        song = Song.objects.get(id=song_id)
-
-        playlist, created = PlayList.objects.get_or_create(id=1, defaults={"current_song": song})
-
-        if created:
-            playlist.save()
-
-        if PlayListSong.objects.filter(song=song, playlist=playlist).count() > 0:
-            return self.response("Already on the playlist")
-
-        last_song = PlayListSong.objects.filter(playlist=playlist).order_by("-sort")
-        if last_song:
-            new_sort = last_song[0].sort + 1
-        else:
-            new_sort = 1
-
-        PlayListSong(
-            song=song,
-            playlist=playlist,
-            sort=new_sort,
-        ).save()
+        try:
+            SongService().add_song(song_id)
+        except Exception, e:
+            return self.json_response({"error": str(e)})
 
         return self.response("ok")
 
@@ -123,12 +80,11 @@ class DeleteView(BaseView):
 
     def post(self, *args, **kwrags):
 
-        playlist, created = PlayList.objects.get_or_create(id=1)
         song_id = self.request.POST.get("song_id")
-        song = Song.objects.get(id=song_id)
-
-        playlist_song = PlayListSong.objects.get(song=song, playlist=playlist)
-        playlist_song.delete()
+        try:
+            SongService().delete_song(song_id)
+        except Exception, e:
+            return self.json_response({"error": str(e)})
 
         return self.response("ok")
 
@@ -161,41 +117,49 @@ class CurrentSongView(BaseView):
     def get(self, *args, **kwrags):
 
         playlist = PlayList.objects.get(id=1)
-        return self.render_to_response({"playlist": playlist, "player": player})
-
+        return self.render_to_response({"playlist": playlist, "player": SongService().player})
 
 
 class MoveSongView(BaseView):
 
     def post(self, *args, **kwrags):
 
-        playlist = PlayList.objects.get(id=1)
-        song = Song.objects.get(id=self.request.POST.get("song_id"))
-
-        playlist_song = PlayListSong.objects.filter(song=song, playlist=playlist)
-        if not playlist_song:
-            return self.response("song not found")
-
-        playlist_song = playlist_song[0]
-
+        song_id = self.request.POST.get("song_id")
         direction = self.request.POST.get("direction")
-        if direction == "up":
-            songs = PlayListSong.objects.exclude(id=playlist_song.id).filter(playlist=playlist, sort__lte=playlist_song.sort).order_by("-sort")
 
-        elif direction == "down":
-            songs = PlayListSong.objects.exclude(id=playlist_song.id).filter(playlist=playlist, sort__gte=playlist_song.sort).order_by("sort")
-
-        if not songs:
-            return self.response("cannot move song")
-
-        next_song = songs[0]
-
-        current_sort = playlist_song.sort
-        playlist_song.sort = next_song.sort
-        next_song.sort = current_sort
-
-        playlist_song.save()
-        next_song.save()
+        try:
+            SongService().move_song(song_id, direction)
+        except Exception, e:
+            return self.json_response({"error": str(e)})
 
         return self.response("ok")
 
+
+class BulkMoveSongView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        data = self.request.POST.get("data")
+        SongService().bulk_move_songs(data)
+
+        return self.response("ok")
+
+
+class SetVolumeView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        volume = self.request.POST.get("volume")
+        SongService().player.change_volume(volume)
+
+        return self.response("ok")
+
+
+class SetPositionView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        position = int(self.request.POST.get("position", 0))
+        SongService().player.seek(position)
+
+        return self.response("ok")

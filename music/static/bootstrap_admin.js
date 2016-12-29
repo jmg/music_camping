@@ -6,7 +6,7 @@ function showNotification(html, source) {
     if (typeof source!=='undefined' && source) {
         $($(source.closest(".panel-body")).find(".msgs-container")).html(html);
     } else {
-        $(".msgs-container.general").html(html);    
+        $(".msgs-container.general").html(html);
     }
 
     $(html).fadeIn();
@@ -18,17 +18,17 @@ function showNotification(html, source) {
 ;(function(d){
 
     d.alert= function(message, title, source) {
-        alertify.set('notifier','position', 'top-right');
+        alertify.set('notifier','position', 'bottom-center');
         alertify.error(message);
     };
 
     d.warning= function(message, title, source){
-        alertify.set('notifier','position', 'top-right');
+        alertify.set('notifier','position', 'bottom-center');
         alertify.warning(message);
     };
 
     d.info= function(message, title, source){
-        alertify.set('notifier','position', 'top-right');
+        alertify.set('notifier','position', 'bottom-center');
         alertify.success(message);
     };
 

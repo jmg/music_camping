@@ -280,17 +280,30 @@ class BaseService(object):
                 else:
                     searchableColumns = searchableColumns + data["search"].get("value").split(",")
 
-        print searchableColumns
-
         # Apply filtering by value sent by user
         customSearch = open_search_data["search"].get('value', '').encode('utf-8');
         if customSearch != '':
             outputQ = None
             first = True
-            for searchableColumn in searchableColumns:
-                kwargz = {searchableColumn+"__icontains" : customSearch}
-                outputQ = outputQ | Q(**kwargz) if outputQ else Q(**kwargz)
-            querySet = querySet.filter(outputQ)
+            print "query %s" % querySet
+
+            if isinstance(querySet, list):
+                searchSet = set()
+                #import pdb; pdb.set_trace()
+                for searchableColumn in searchableColumns:
+                    for x in querySet:
+                        if customSearch.lower() in getattr(x, searchableColumn).lower():
+                            print x, searchableColumn
+                            searchSet.add(x)
+
+                for x in [y for y in querySet]:
+                    if x not in searchSet:
+                        querySet.remove(x)
+            else:
+                for searchableColumn in searchableColumns:
+                    kwargz = {searchableColumn+"__icontains" : customSearch}
+                    outputQ = outputQ | Q(**kwargz) if outputQ else Q(**kwargz)
+                querySet = querySet.filter(outputQ)
 
         sEcho = int(open_search_data.get('sEcho',0)) # required echo response
 
