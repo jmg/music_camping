@@ -18,17 +18,17 @@ function showNotification(html, source) {
 ;(function(d){
 
     d.alert= function(message, title, source) {
-        alertify.set('notifier','position', 'bottom-center');
+        alertify.set('notifier','position', 'bottom-left');
         alertify.error(message);
     };
 
     d.warning= function(message, title, source){
-        alertify.set('notifier','position', 'bottom-center');
+        alertify.set('notifier','position', 'bottom-left');
         alertify.warning(message);
     };
 
     d.info= function(message, title, source){
-        alertify.set('notifier','position', 'bottom-center');
+        alertify.set('notifier','position', 'bottom-left');
         alertify.success(message);
     };
 

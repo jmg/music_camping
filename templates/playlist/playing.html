@@ -61,10 +61,23 @@
     }, {% if settings.PLAYER_UPDATE_INTERVAL %}{{settings.PLAYER_UPDATE_INTERVAL}}{% else %}1000{% endif %});
     {% endif %}
 
-    function deleteFromPlaylist(song_id) {
+    function deleteFromPlaylist() {
+
+        var song_id = $("#remove-song-modal-song-id").val();
+
         $.post("/playlist/delete/", {song_id: song_id}, function() {
 
             playingTable.ajax.reload();
+            $("#remove-song-modal").modal("hide");
+        })
+    }
+
+    function clearPlaylist() {
+
+        $.post("/playlist/clear/", {}, function() {
+
+            playingTable.ajax.reload();
+            $("#clear-playlist-modal").modal("hide");
         })
     }
 
@@ -82,6 +95,17 @@
 
             playingTable.ajax.reload();
         });
+    }
+
+    function showDeleteFromPlaylistModal(song_id) {
+
+        $("#remove-song-modal-song-id").val(song_id);
+        $("#remove-song-modal").modal();
+    }
+
+    function showClearPlaylistModal() {
+
+        $("#clear-playlist-modal").modal();
     }
 
     $(document).ready(function() {
@@ -147,7 +171,7 @@
 
 <div style="margin-top: 20px;" class="panel panel-default">
     <div class="panel-heading panel-toggler">
-        <i class="fa fa-list"></i> Playlist
+        <i class="fa fa-list"></i> Playlist <button onclick="showClearPlaylistModal()" style="float: right; position: relative; top: -7px; right: -11px;" class="btn btn-danger"><i class="fa fa-trash"></i></button>
     </div>
 
     <div class="panel-body">

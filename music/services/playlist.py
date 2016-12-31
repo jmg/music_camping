@@ -1,5 +1,5 @@
 from music.services.base import BaseService
-from music.models import PlayList
+from music.models import PlayList, PlayListSong
 
 
 class PlayListService(BaseService):
@@ -16,3 +16,11 @@ class PlayListService(BaseService):
             playlist.save()
 
         return playlist
+
+    def clear(self):
+
+        playlist = self.get_playlist()
+        playlist_songs = PlayListSong.objects.filter(playlist=playlist)
+
+        for playlist_song in playlist_songs:
+            playlist_song.delete()

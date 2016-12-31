@@ -171,3 +171,12 @@ class SetPositionView(BaseView):
         SongService().set_position(position)
 
         return self.response("ok")
+
+
+class ClearView(BaseView):
+
+    def post(self, *args, **kwrags):
+
+        PlayListService().clear()
+
+        return self.response("ok")

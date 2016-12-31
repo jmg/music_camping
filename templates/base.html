@@ -90,6 +90,48 @@
     <script type="text/javascript" src="{{ STATIC_URL }}bootstrap_admin/js/sb-admin-2.js"></script>
     {% block js %}{% endblock %}
 
+    <div class="modal fade" id="remove-song-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b>Remove song.</b>
+                </div>
+
+                <input id="remove-song-modal-song-id" type="hidden">
+
+                <div class="modal-body">
+
+                    <div>Are you sure you want to remove the song?</div>
+                </div>
+                <div class="modal-footer">
+                    <a onclick="deleteFromPlaylist()" type="button" class="btn btn-primary">Yes</a>
+                    <a class="btn btn-default" data-dismiss="modal">No</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="clear-playlist-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b>Clear Playlist.</b>
+                </div>
+
+                <input id="remove-song-modal-song-id" type="hidden">
+
+                <div class="modal-body">
+
+                    <div>Are you sure you want to clear the current playlist?</div>
+                </div>
+                <div class="modal-footer">
+                    <a onclick="clearPlaylist()" type="button" class="btn btn-primary">Yes</a>
+                    <a class="btn btn-default" data-dismiss="modal">No</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
