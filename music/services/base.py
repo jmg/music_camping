@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404
 
-from shopify_app.utils.render import render, render_string
-from shopify_app.utils.python import convert_to_bool
+from music.utils.render import render, render_string
+from music.utils.python import convert_to_bool
+
 from django.http import HttpResponse
 import json
 from django.utils.cache import add_never_cache_headers

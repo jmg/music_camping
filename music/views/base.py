@@ -5,8 +5,8 @@ import simplejson as json
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
-from shopify_app.utils.render import render, render_string
-from shopify_app.utils.python import convert_to_bool
+from music.utils.render import render, render_string
+from music.utils.python import convert_to_bool
 
 
 class BaseView(TemplateView):
