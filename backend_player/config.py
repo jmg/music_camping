@@ -1,5 +1,5 @@
 SERVER_URL = "http://localhost:8000"
-SERVER_URL = "http://live.devcloudsoftware.com"
+#SERVER_URL = "http://live.devcloudsoftware.com"
 UPDATE_INTERVAL = 0.5
 
 try:

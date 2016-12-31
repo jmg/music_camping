@@ -3,10 +3,7 @@ import mimetypes
 from music.models import Config
 from music.services.base import BaseService
 from music.services.song import SongService
-try:
-    from eyed3.core import Tag
-except:
-    from eyeD3 import Tag
+import eyed3
 
 
 class ConfigService(BaseService):
@@ -24,15 +21,14 @@ class ConfigService(BaseService):
 
         for path in songs_paths:
 
-            tag = Tag()
-            tag.link(path)
+            audiofile = eyed3.load(path)
 
             song, created = SongService().get_or_create(
                 path=path,
                 defaults={
-                    "name": tag.getTitle(),
-                    "artist": tag.getArtist(),
-                    "album": tag.getAlbum(),
+                    "name": audiofile.tag.title,
+                    "artist": audiofile.tag.artist,
+                    "album": audiofile.tag.album,
                 }
             )
 
