@@ -26,8 +26,9 @@ class PanelView(BaseView):
 
     def get(self, *args, **kwargs):
 
-        home_dir = os.path.expanduser('~')
-        return self.render_to_response({"home_dir": home_dir})
+        home_dir = "/home/jmg"
+        config = ConfigService().get_or_new(id=1)
+        return self.render_to_response({"home_dir": home_dir, "config": config})
 
 
 class LoadSongsView(BaseView):
@@ -39,3 +40,11 @@ class LoadSongsView(BaseView):
 
         return self.json_response({"count": len(songs)})
 
+
+class SaveConfig(BaseView):
+
+    def post(self, *args, **kwargs):
+
+        ConfigService().save(self.request.POST)
+
+        return self.json_response({"status": "ok"})

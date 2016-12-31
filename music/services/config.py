@@ -1,11 +1,40 @@
 import os
 import mimetypes
-from music.models import Song
+from music.models import Config
+from music.services.base import BaseService
 from music.services.song import SongService
-import eyed3
+try:
+    import eyed3
+except:
+    import eyeD3 as eyed3
 
 
-class ConfigService(object):
+class ConfigService(BaseService):
+
+    entity = Config
+
+    def save(self, data):
+
+        config = self.get_or_new(id=1)
+        config.songs_directory_changed = True
+        config.songs_directory = data["songs_directory"]
+        config.save()
+
+    def save_songs(self, songs_paths):
+
+        for path in songs_paths:
+
+            tag = eyed3.Tag()
+            tag.link(path)
+
+            song, created = SongService().get_or_create(
+                path=path,
+                defaults={
+                    "name": tag.getTitle(),
+                    "artist": tag.getArtist(),
+                    "album": tag.getAlbum(),
+                }
+            )
 
     def save_songs_for_dir(self, directory):
 

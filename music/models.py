@@ -10,8 +10,11 @@ class Config(models.Model):
     SONG_SELECTION_TYPES = (("Queue", "Queue"), ("Vote", "Vote"))
     song_selection_type = models.CharField(max_length=20, choices=SONG_SELECTION_TYPES, default="Queue")
 
-    songs_limit = models.PositiveIntegerField()
-    songs_limit_time = models.PositiveIntegerField()
+    songs_limit = models.PositiveIntegerField(null=True, blank=True)
+    songs_limit_time = models.PositiveIntegerField(null=True, blank=True)
+
+    songs_directory = models.CharField(max_length=1000, null=True, blank=True)
+    songs_directory_changed = models.BooleanField(default=False)
 
 
 class AdminUser(models.Model):

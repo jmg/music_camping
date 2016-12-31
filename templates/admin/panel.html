@@ -4,8 +4,10 @@
 <script type="text/javascript">
     function loadSongs() {
         var directory = $("#music_dir").val();
-        $.post("/admin/loadsongs/", {"directory": directory}, function(response) {
-            $.info(response.count + " new songs loaded");
+        $.post("/admin/saveconfig/", {"songs_directory": directory}, function(response) {
+
+            $.info("Config saved! Songs are being loaded...");
+            //$.info(response.count + " new songs loaded");
         }, 'json');
     }
 </script>
@@ -18,7 +20,7 @@
     </div>
 
     <div class="panel-body">
-        <input id="music_dir" name="music_dir" class="form-control" value="{{home_dir}}/Music">
+        <input id="music_dir" name="music_dir" class="form-control" value="{% if config.songs_directory %}{{config.songs_directory}}{% else %}{{home_dir}}/Music{% endif %}">
         <button style="margin-top: 10px;" class="btn btn-primary" onclick="loadSongs()">Load Songs!</button>
     </div>
 </div>

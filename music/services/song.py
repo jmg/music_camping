@@ -23,7 +23,7 @@ class SongService(BaseService):
         if song_changed:
             playlist.song_changed = True
         else:
-            playlist.song_changed = playlist.current_song.id != song.id
+            playlist.song_changed = playlist.current_song is not None and playlist.current_song.id != song.id
 
         playlist.current_song = song
         playlist.state = "Playing"

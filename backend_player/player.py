@@ -3,6 +3,7 @@ import time
 import json
 import requests
 import config
+import os
 
 
 class Player(object):
@@ -33,10 +34,10 @@ class Player(object):
             print data
 
             if data["state"] == "Playing":
-                if not self.is_playing():
+                if not self.is_playing() and data["path"]:
                     self.play(data["path"])
 
-                elif data["song_changed"]:
+                elif data["song_changed"] and data["path"]:
                     self.stop()
                     self.play(data["path"])
 
@@ -46,10 +47,18 @@ class Player(object):
             elif data["state"] == "Not Playing":
                 self.stop()
 
-            self.set_volume(int(data["volume"]))
+            if data.get("volume"):
+                self.set_volume(int(data["volume"]))
 
             if data["position_changed"]:
                 self.seek(int(data["position"]))
+
+            if data["songs_directory_changed"]:
+                songs = self.list_songs_dir(data["songs_directory"])
+                try:
+                    response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs) })
+                except:
+                    pass
 
             time.sleep(self.sleep_time)
 
@@ -189,6 +198,25 @@ class Player(object):
             segs = str(segs)
 
         return mins + ":" + segs
+
+    def list_songs_dir(self, songs_directory):
+
+        songs = []
+        for directory, sub_folders, files in os.walk(songs_directory):
+            for file in files:
+                if self.valid_format(file):
+                    path = os.path.join(directory, file)
+                    songs.append(path)
+
+        return songs
+
+    def valid_format(self, name):
+
+        validFormats = ['.mp3','.wav','.wma', '.avi', '.ogg', '.flac']
+        for format in validFormats:
+            if name.find(format) != -1:
+                return True
+        return False
 
 
 if __name__ == "__main__":
