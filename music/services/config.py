@@ -2,7 +2,7 @@ import os
 import mimetypes
 from music.models import Song
 from music.services.song import SongService
-import eyeD3
+import eyed3
 
 
 class ConfigService(object):
@@ -15,7 +15,7 @@ class ConfigService(object):
                 if self.valid_format(file):
                     path = os.path.join(directory, file)
 
-                    tag = eyeD3.Tag()
+                    tag = eyed3.Tag()
                     tag.link(path)
 
                     song, created = Song.objects.get_or_create(
