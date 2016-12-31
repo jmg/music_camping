@@ -3,7 +3,6 @@ import mimetypes
 from music.models import Config
 from music.services.base import BaseService
 from music.services.song import SongService
-import eyed3
 
 
 class ConfigService(BaseService):
@@ -17,18 +16,16 @@ class ConfigService(BaseService):
         config.songs_directory = data["songs_directory"]
         config.save()
 
-    def save_songs(self, songs_paths):
+    def save_songs(self, songs):
 
-        for path in songs_paths:
-
-            audiofile = eyed3.load(path)
+        for song in songs:
 
             song, created = SongService().get_or_create(
-                path=path,
+                path=song["path"],
                 defaults={
-                    "name": audiofile.tag.title,
-                    "artist": audiofile.tag.artist,
-                    "album": audiofile.tag.album,
+                    "name": song["title"],
+                    "artist": song["artist"],
+                    "album": song["album"],
                 }
             )
 

@@ -4,6 +4,7 @@ import json
 import requests
 import config
 import os
+import eyed3
 
 
 class Player(object):
@@ -206,8 +207,18 @@ class Player(object):
         for directory, sub_folders, files in os.walk(songs_directory):
             for file in files:
                 if self.valid_format(file):
+
                     path = os.path.join(directory, file)
-                    songs.append(path)
+                    audiofile = eyed3.load(path)
+
+                    song = {
+                        "path": path,
+                        "title": audiofile.tag.title,
+                        "artist": audiofile.tag.artist,
+                        "album": audiofile.tag.album,
+                    }
+
+                    songs.append(song)
 
         return songs
 

@@ -60,7 +60,7 @@ class SaveSongsView(BaseView):
 
     def post(self, *args, **kwargs):
 
-        songs_paths = json.loads(self.request.POST.get("songs"))
-        ConfigService().save_songs(songs_paths)
+        songs = json.loads(self.request.POST.get("songs"))
+        ConfigService().save_songs(songs)
 
         return self.json_response({})
