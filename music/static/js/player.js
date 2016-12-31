@@ -65,9 +65,12 @@ $(document).ready(function() {
 
             $.post("/playlist/changesong/", params, function(song) {
 
-                song = JSON.parse(song);
-                _play(song);
-            });
+                $("#current-song").val(JSON.stringify(song));
+                var currentSongEl = $("#song-" + song.id);
+                that.activateSong(currentSongEl);
+                songTitleEl.html(song.name);
+
+            }, 'json');
         }
 
         this.next = function() {
@@ -78,6 +81,15 @@ $(document).ready(function() {
         this.previous = function() {
 
             changesong(false);
+        }
+
+        var resetTimer = function() {
+            $(".song-time").html("00:00");
+            $("#song-slider").slider({
+                min: 0,
+                max: 100,
+                values: [0],
+            });
         }
 
         this.activateSong = function(currentSongEl) {

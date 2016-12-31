@@ -1,13 +1,15 @@
-<h1 class="song-title">{% if playlist.current_song and player.is_playing %}{{playlist.current_song.name}}{% else %}Not Playing{% endif %} <em></em></h1>
+<h1 class="song-title">{% if playlist.current_song and playlist.is_playing %}{{playlist.current_song.name}}{% else %}Not Playing{% endif %} <em></em></h1>
 
-<div class="song-time">{{player.get_position}}</div>
+<div class="song-time">{{player_data.current_position}}</div>
 <div id="song-slider"></div>
+
+<input id="current-song" type="hidden" value="{{playlist.current_song.to_json}}">
 
 <script type="text/javascript">
     $("#song-slider").slider({
         min: 0,
-        max: {{player.get_seekable_duration}},
-        values: [{{player.get_raw_position}}],
+        max: {{player_data.current_song_lenght}},
+        values: [{{player_data.current_position_timestamp}}],
         stop: function( event, ui ) {
 
             var data = {"position": ui.value}

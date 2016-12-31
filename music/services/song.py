@@ -1,29 +1,82 @@
 from music.services.base import BaseService
-from music.services.player import player
+#from music.services.player.connector import player
+from music.services.playlist import PlayListService
 from music.models import PlayList, Song, PlayListSong
 import json
 import threading
+from django.core.cache import cache
 
 
 class SongService(BaseService):
 
     entity = Song
-    player = player
+    #player = player
 
-    def play_song(self, song_id, callback=None):
+    def play_song(self, song_id, song_changed=False, callback=None):
 
-        playlist = PlayList.objects.get(id=1)
+        playlist = PlayListService().get_playlist()
         song = Song.objects.get(id=song_id)
 
-        player.stop()
-        player.play(song.path, callback=callback)
+        #self.player.stop()
+        #self.player.play(song.path, callback=callback)
+
+        if song_changed:
+            playlist.song_changed = True
+        else:
+            playlist.song_changed = playlist.current_song.id != song.id
 
         playlist.current_song = song
+        playlist.state = "Playing"
         playlist.save()
+
+    def play_next_song(self, is_next=True, is_prev=False):
+
+        playlist_song = self.change_song(is_next=is_next, is_prev=is_prev)
+        self.play_song(playlist_song.song.id, song_changed=True)
+
+    def stop_song(self):
+
+        playlist = PlayListService().get_playlist()
+
+        #self.player.stop()
+
+        playlist.state = "Not Playing"
+        playlist.save()
+
+    def pause_song(self):
+
+        playlist = PlayListService().get_playlist()
+
+        #self.player.pause()
+
+        playlist.state = "Paused"
+        playlist.save()
+
+    def set_position(self, position):
+
+        playlist = PlayListService().get_playlist()
+        #self.player.seek(position)
+        playlist.position_changed = True
+        playlist.position = position
+        playlist.save()
+
+    def set_volume(self, volume):
+
+        playlist = PlayListService().get_playlist()
+
+        #self.player.change_volume(volume)
+
+        playlist.volume = volume
+        playlist.save()
+
+    def get_player_data(self):
+
+        playlist = PlayListService().get_playlist()
+        return json.loads(cache.get("player_state_data"))
 
     def change_song(self, is_next=True, is_prev=False):
 
-        playlist, _ = PlayList.objects.get_or_create(id=1)
+        playlist = PlayListService().get_playlist()
         playlist_song = PlayListSong.objects.filter(song=playlist.current_song, playlist=playlist)[0]
 
         if is_next:
@@ -74,7 +127,7 @@ class SongService(BaseService):
 
     def delete_song(self, song_id):
 
-        playlist, created = PlayList.objects.get_or_create(id=1)
+        playlist = PlayListService().get_playlist()
 
         song = Song.objects.get(id=song_id)
 
@@ -83,7 +136,7 @@ class SongService(BaseService):
 
     def move_song(self, song_id, direction):
 
-        playlist = PlayList.objects.get(id=1)
+        playlist = PlayListService().get_playlist()
         song = Song.objects.get(id=song_id)
 
         playlist_song = PlayListSong.objects.filter(song=song, playlist=playlist)
@@ -112,7 +165,7 @@ class SongService(BaseService):
 
     def bulk_move_songs(self, data):
 
-        playlist = PlayList.objects.get(id=1)
+        playlist = PlayListService().get_playlist()
         playlist_songs = [x for x in PlayListSong.objects.filter(playlist=playlist)]
 
         for song_data in json.loads(data):
@@ -125,16 +178,3 @@ class SongService(BaseService):
             playlist_song.sort = playlist_songs[song_data["new_position"]].sort
 
             playlist_song.save()
-
-    def check_if_song_finished(self):
-
-        def background_process():
-
-            while True:
-                if SongService().player.song_finished():
-                    playlist_song = SongService().change_song(is_next=True)
-                    SongService().play_song(playlist_song.song.id)
-
-        t = threading.Thread(target=background_process, args=(), kwargs={})
-        t.setDaemon(True)
-        t.start()

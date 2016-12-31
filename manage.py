@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     from django.core.management import execute_from_command_line
 
-    from music.services.song import SongService
-    SongService().check_if_song_finished()
+    #from music.services.song import SongService
+    #SongService().check_if_song_finished()
 
     execute_from_command_line(sys.argv)

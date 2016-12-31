@@ -1,5 +1,6 @@
 from base import BaseView
 from music.services.song import SongService
+from music.services.playlist import PlayListService
 from music.models import PlayList, Song, PlayListSong
 import threading
 
@@ -10,8 +11,10 @@ class PlayingView(BaseView):
 
     def get(self, *args, **kwrags):
 
-        playlist, _ = PlayList.objects.get_or_create(id=1)
-        return self.render_to_response({"playlist": playlist, "player": SongService().player})
+        playlist = PlayListService().get_playlist()
+        player_data = SongService().get_player_data()
+
+        return self.render_to_response({"playlist": playlist, "player_data": player_data})
 
 
 class ChangeSongView(BaseView):
@@ -22,7 +25,7 @@ class ChangeSongView(BaseView):
         is_prev = self.request.POST.get("prev") is not None
 
         try:
-            playlist_song = SongService().change_song(is_next=is_next, is_prev=is_prev)
+            SongService().play_next_song(is_next=is_next, is_prev=is_prev)
         except Exception, e:
             return self.json_response({"error": str(e)})
 
@@ -42,7 +45,8 @@ class StopView(BaseView):
 
     def post(self, *args, **kwrags):
 
-        SongService().player.stop()
+        SongService().stop_song()
+
         return self.response("ok")
 
 
@@ -50,7 +54,8 @@ class PauseView(BaseView):
 
     def post(self, *args, **kwrags):
 
-        SongService().player.pause()
+        SongService().pause_song()
+
         return self.response("ok")
 
 
@@ -93,7 +98,7 @@ class PlayingListView(BaseView):
 
     def get(self, *args, **kwargs):
 
-        playlist = PlayList.objects.get(id=1)
+        playlist = PlayListService().get_playlist()
         qs = [x.song for x in PlayListSong.objects.filter(playlist=playlist)]
 
         columnIndexNameMap = {
@@ -116,8 +121,10 @@ class CurrentSongView(BaseView):
 
     def get(self, *args, **kwrags):
 
-        playlist = PlayList.objects.get(id=1)
-        return self.render_to_response({"playlist": playlist, "player": SongService().player})
+        playlist = PlayListService().get_playlist()
+        player_data = SongService().get_player_data()
+
+        return self.render_to_response({"playlist": playlist, "player_data": player_data })
 
 
 class MoveSongView(BaseView):
@@ -150,7 +157,7 @@ class SetVolumeView(BaseView):
     def post(self, *args, **kwrags):
 
         volume = self.request.POST.get("volume")
-        SongService().player.change_volume(volume)
+        SongService().set_volume(volume)
 
         return self.response("ok")
 
@@ -160,6 +167,6 @@ class SetPositionView(BaseView):
     def post(self, *args, **kwrags):
 
         position = int(self.request.POST.get("position", 0))
-        SongService().player.seek(position)
+        SongService().set_position(position)
 
         return self.response("ok")

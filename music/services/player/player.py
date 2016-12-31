@@ -1,5 +1,6 @@
 import gst
 import time
+from multiprocessing import Process
 
 class Player(object):
 
@@ -7,6 +8,15 @@ class Player(object):
 
         self.player = gst.element_factory_make("playbin", "player")
         self.time_format = gst.Format(gst.FORMAT_TIME)
+
+    def get_player_data(self):
+
+        return {
+            "current_position": self.get_position(),
+            "current_song_lenght": self.get_song_lenght(),
+            "current_position_timestamp": self.get_position_timestamp(),
+            "is_playing": self.is_playing(),
+        }
 
     def play(self, path, callback=None):
 
@@ -19,8 +29,9 @@ class Player(object):
         except:
             pass
 
-        bus = self.player.get_bus()
-        bus.add_watch(self.event_listener)
+        if callback:
+            bus = self.player.get_bus()
+            bus.add_watch(self.event_listener)
 
     def get_uri(self, path):
         if path.find("http://") != -1 or path.find("file://") != -1:
@@ -39,7 +50,7 @@ class Player(object):
         if self.is_playing():
             self.player.set_state(gst.STATE_PAUSED)
 
-    def get_raw_position(self):
+    def get_position_timestamp(self):
 
         return self.get_position(convert_time=False)
 
@@ -62,17 +73,7 @@ class Player(object):
             return "00:00"
         return 0
 
-    def get_seeked_position(self):
-        if self.is_playing():
-            pos = None
-            while not pos:
-                try:
-                    pos = self.player.query_position(self.time_format, None)[0]
-                except:
-                    pass
-            return pos
-
-    def get_seekable_duration(self):
+    def get_song_lenght(self):
         try:
             return self.player.query_duration(self.time_format, None)[0]
         except:

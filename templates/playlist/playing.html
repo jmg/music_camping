@@ -86,7 +86,7 @@
         $("#song-volume").slider({
             min: 0,
             max: 100,
-            values: [{{player.get_volume}}],
+            values: [{{playlist.volume}}],
             slide: function( event, ui ) {
 
                 var data = {"volume": ui.value}
@@ -112,8 +112,6 @@
     {% include "playlist/currentsong.html" %}
     </div>
 
-    <input id="current-song" type="hidden" value="{{playlist.current_song.to_json}}">
-
     <!--<div class="audiojs" classname="audiojs" id="audiojs_wrapper0">
         <audio></audio>
         <div class="play-pause">
@@ -134,7 +132,7 @@
     -->
 </div>
 
-{% if request.user.is_superuser %}
+{% if 1 or request.user.is_superuser %}
 <br>
 <button class="btn btn-primary" onclick="player.play()"><i class="fa fa-play"></i></button>
 <button class="btn btn-warning" onclick="player.pause()"><i class="fa fa-pause"></i></button>

@@ -24,6 +24,17 @@ class PlayList(models.Model):
     songs = models.ManyToManyField("Song", related_name="playlist_songs", through='PlayListSong')
     current_song = models.OneToOneField("Song", null=True, blank=True)
 
+    state = models.CharField(max_length=50, null=True, blank=True)
+    volume = models.CharField(max_length=50, null=True, blank=True)
+    position = models.CharField(max_length=50, null=True, blank=True)
+
+    position_changed = models.BooleanField(default=False)
+    song_changed = models.BooleanField(default=False)
+
+    def is_playing(self):
+
+        return self.state == "Playing"
+
 
 class Song(models.Model):
 
