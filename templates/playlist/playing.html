@@ -55,9 +55,11 @@
         });
     }
 
+    {% if settings.PLAYER_AUTO_REFRESH %}
     setInterval(function() {
         refreshData();
-    }, 1000);
+    }, {% if settings.PLAYER_UPDATE_INTERVAL %}{{settings.PLAYER_UPDATE_INTERVAL}}{% else %}1000{% endif %});
+    {% endif %}
 
     function deleteFromPlaylist(song_id) {
         $.post("/playlist/delete/", {song_id: song_id}, function() {

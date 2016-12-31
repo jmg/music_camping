@@ -2,6 +2,7 @@ from base import BaseView
 from music.services.song import SongService
 from music.services.playlist import PlayListService
 from music.models import PlayList, Song, PlayListSong
+from django.conf import settings
 import threading
 
 
@@ -14,7 +15,7 @@ class PlayingView(BaseView):
         playlist = PlayListService().get_playlist()
         player_data = SongService().get_player_data()
 
-        return self.render_to_response({"playlist": playlist, "player_data": player_data})
+        return self.render_to_response({"playlist": playlist, "player_data": player_data, "settings": settings})
 
 
 class ChangeSongView(BaseView):

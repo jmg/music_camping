@@ -2,19 +2,18 @@ import gst
 import time
 import json
 import requests
+import config
 
 
 class Player(object):
 
     def __init__(self):
 
-        self.server_url = "http://localhost:8000"
+        self.server_url = config.SERVER_URL
         self.player = gst.element_factory_make("playbin", "player")
         self.time_format = gst.Format(gst.FORMAT_TIME)
-        self.sleep_time = 1
+        self.sleep_time = config.UPDATE_INTERVAL
 
-        self.stopped = False
-        self.song_finished_flag = False
         self.current_position = self.get_position(convert_time=False)
 
     def play_forever(self):
@@ -22,9 +21,9 @@ class Player(object):
         while True:
 
             state_data = self.get_player_data()
-            response = requests.post("%s/player/state/" % (self.server_url, ), data={"data": json.dumps(state_data) })
 
             try:
+                response = requests.post("%s/player/state/" % (self.server_url, ), data={"data": json.dumps(state_data) })
                 data = response.json()
             except:
                 print response.content
@@ -43,11 +42,9 @@ class Player(object):
 
             elif data["state"] == "Paused":
                 self.pause()
-                self.stopped = True
 
             elif data["state"] == "Not Playing":
                 self.stop()
-                self.stopped = True
 
             self.set_volume(int(data["volume"]))
 

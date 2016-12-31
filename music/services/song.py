@@ -72,7 +72,10 @@ class SongService(BaseService):
     def get_player_data(self):
 
         playlist = PlayListService().get_playlist()
-        return json.loads(cache.get("player_state_data"))
+        try:
+            return json.loads(cache.get("player_state_data"))
+        except:
+            return {}
 
     def change_song(self, is_next=True, is_prev=False):
 
