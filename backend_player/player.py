@@ -57,6 +57,9 @@ class Player(object):
                 songs = self.list_songs_dir(data["songs_directory"])
                 try:
                     response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs) })
+                    print response.status_code
+                    open("file.html", "w").write(response.content)
+                    print response.content
                 except:
                     pass
 
@@ -76,8 +79,6 @@ class Player(object):
         return False
 
     def get_player_data(self):
-
-        print self.song_finished()
 
         return {
             "current_position": self.get_position(),

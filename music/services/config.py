@@ -4,9 +4,9 @@ from music.models import Config
 from music.services.base import BaseService
 from music.services.song import SongService
 try:
-    import eyed3
+    from eyed3.core import Tag
 except:
-    import eyeD3 as eyed3
+    from eyeD3 import Tag
 
 
 class ConfigService(BaseService):
@@ -24,7 +24,7 @@ class ConfigService(BaseService):
 
         for path in songs_paths:
 
-            tag = eyed3.Tag()
+            tag = Tag()
             tag.link(path)
 
             song, created = SongService().get_or_create(
@@ -44,7 +44,7 @@ class ConfigService(BaseService):
                 if self.valid_format(file):
                     path = os.path.join(directory, file)
 
-                    tag = eyed3.Tag()
+                    tag = Tag()
                     tag.link(path)
 
                     song, created = Song.objects.get_or_create(
