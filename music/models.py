@@ -42,10 +42,10 @@ class PlayList(models.Model):
 class Song(models.Model):
 
     path = models.CharField(max_length=2000)
-    name = models.CharField(max_length=1000)
-    artist = models.CharField(max_length=1000)
-    genre = models.CharField(max_length=1000)
-    album = models.CharField(max_length=1000)
+    name = models.CharField(max_length=1000, null=True, blank=True)
+    artist = models.CharField(max_length=1000, null=True, blank=True)
+    genre = models.CharField(max_length=1000, null=True, blank=True)
+    album = models.CharField(max_length=1000, null=True, blank=True)
 
     def get_streaming_url(self):
 
