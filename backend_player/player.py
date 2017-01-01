@@ -211,9 +211,17 @@ class Player(object):
                     path = os.path.join(directory, file)
                     audiofile = eyed3.load(path)
 
+                    if audiofile.tag.title:
+                        title = audiofile.tag.title
+                    else:
+                        try:
+                            title = path.rsplit("/", 1)[-1]
+                        except:
+                            title = path
+
                     song = {
                         "path": path,
-                        "title": audiofile.tag.title,
+                        "title": title,
                         "artist": audiofile.tag.artist,
                         "album": audiofile.tag.album,
                     }
