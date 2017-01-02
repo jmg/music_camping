@@ -22,6 +22,7 @@ class Player(object):
 
         self.player = Gst.ElementFactory.make("playbin", "player")
         self.current_position = self.get_position(convert_time=False)
+        self.current_song = None
 
     def play_forever(self):
 
@@ -43,9 +44,10 @@ class Player(object):
                 if not self.is_playing() and data["path"]:
                     self.play(data["path"])
 
-                elif data["song_changed"] and data["path"]:
+                elif data["path"] != self.current_song and data["path"]:
                     self.stop()
                     self.play(data["path"])
+                    self.current_song = data["path"]
 
             elif data["state"] == "Paused":
                 self.pause()
