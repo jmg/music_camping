@@ -25,7 +25,7 @@ class Player(object):
         self.player = Gst.ElementFactory.make("playbin", "player")
         self.current_position = self.get_position(convert_time=False)
         self.current_song = None
-        self.songs_list = None
+        self.songs_list = []
 
     def play_forever(self):
 
@@ -68,7 +68,8 @@ class Player(object):
     def get_local_data(self):
 
         if not self.songs_list:
-            self.songs_list = self.list_songs_dir(config.DEFAULT_SONGS_DIR, analize_file=False)
+            self.songs_list.extend(self.list_songs_dir(config.DEFAULT_SONGS_DIR, analize_file=False))
+            self.songs_list.extend(self.list_songs_dir(config.DEFAULT_MEDIA_SONGS_DIR, analize_file=False))
 
         if not self.songs_list:
             return
@@ -84,7 +85,7 @@ class Player(object):
 
     def update_player(self, data):
 
-        print data
+        #print data
 
         if data["state"] == "Playing":
             if not self.is_playing() and data["path"]:
@@ -108,16 +109,19 @@ class Player(object):
             self.seek(int(data["position"]))
 
         if data.get("songs_directory_changed"):
+            self.save_songs(data["songs_directory"])
 
-            def save_song():
-                songs = self.list_songs_dir(data["songs_directory"])
-                songs_lists = self.chunks(songs, 50)
-                for songs_list in songs_lists:
-                    response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs_list) })
-                    print response.content
+    def save_songs(self, songs_directory):
 
-            thread = threading.Thread(target=save_song)
-            thread.start()
+        def save_song_async():
+
+            songs = self.list_songs_dir(songs_directory)
+            songs_lists = self.chunks(songs, 50)
+            for songs_list in songs_lists:
+                response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs_list) })
+
+        thread = threading.Thread(target=save_song_async)
+        thread.start()
 
     def song_finished(self):
 
