@@ -65,7 +65,6 @@ class Player(object):
                     songs = self.list_songs_dir(data["songs_directory"])
                     songs_lists = self.chunks(songs, 50)
                     for songs_list in songs_lists:
-                        import ipdb; ipdb.set_trace()
                         response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs_list) })
                         print response.content
 
