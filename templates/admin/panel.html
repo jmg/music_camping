@@ -16,7 +16,13 @@
         $.info("Deleting songs...");
         $.post("/admin/deleteallsongs/", {}, function(response) {
             $.info("Songs Deleted!");
+            $("#delete-all-songs-modal").modal("hide");
         });
+    }
+
+    function showDeleteAllSongsModal() {
+
+        $("#delete-all-songs-modal").modal("show");
     }
 </script>
 {% endblock %}
@@ -35,7 +41,7 @@
         </div>
 
         <div>
-        <button style="margin-top: 5px;" class="btn btn-danger" onclick="deleteAllSongs()"><i class="fa fa-trash"></i> Delete All Songs</button>
+        <button style="margin-top: 5px;" class="btn btn-danger" onclick="showDeleteAllSongsModal()"><i class="fa fa-trash"></i> Delete All Songs</button>
         </div>
     </div>
 </div>
