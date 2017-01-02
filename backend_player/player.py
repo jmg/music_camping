@@ -1,10 +1,16 @@
-import gst
+import gi
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst
+Gst.init(None)
+
+import os
 import time
 import json
 import requests
 import config
 import os
 import eyed3
+import threading
 
 
 class Player(object):
@@ -12,10 +18,9 @@ class Player(object):
     def __init__(self):
 
         self.server_url = config.SERVER_URL
-        self.player = gst.element_factory_make("playbin", "player")
-        self.time_format = gst.Format(gst.FORMAT_TIME)
         self.sleep_time = config.UPDATE_INTERVAL
 
+        self.player = Gst.ElementFactory.make("playbin", "player")
         self.current_position = self.get_position(convert_time=False)
 
     def play_forever(self):
@@ -55,14 +60,17 @@ class Player(object):
                 self.seek(int(data["position"]))
 
             if data["songs_directory_changed"]:
-                songs = self.list_songs_dir(data["songs_directory"])
-                try:
-                    response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs) })
-                    print response.status_code
-                    open("file.html", "w").write(response.content)
-                    print response.content
-                except:
-                    pass
+
+                def save_song():
+                    songs = self.list_songs_dir(data["songs_directory"])
+                    songs_lists = self.chunks(songs, 50)
+                    for songs_list in songs_lists:
+                        import ipdb; ipdb.set_trace()
+                        response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs_list) })
+                        print response.content
+
+                thread = threading.Thread(target=save_song)
+                thread.start()
 
             time.sleep(self.sleep_time)
 
@@ -96,7 +104,7 @@ class Player(object):
 
         self.player.set_property('uri', uri)
         try:
-            self.player.set_state(gst.STATE_PLAYING)
+            self.player.set_state(Gst.State.PLAYING)
         except:
             pass
 
@@ -111,15 +119,15 @@ class Player(object):
 
     def stop(self):
         if self.is_playing():
-            self.player.set_state(gst.STATE_NULL)
+            self.player.set_state(Gst.State.NULL)
 
     def resume(self):
         if not self.is_playing():
-            self.player.set_state(gst.STATE_PLAYING)
+            self.player.set_state(Gst.State.PLAYING)
 
     def pause(self):
         if self.is_playing():
-            self.player.set_state(gst.STATE_PAUSED)
+            self.player.set_state(Gst.State.PAUSED)
 
     def get_position_timestamp(self):
 
@@ -132,7 +140,7 @@ class Player(object):
             pos = None
             while not pos:
                 try:
-                    pos = self.player.query_position(self.time_format, None)[0]
+                    pos = self.player.query_position(Gst.Format.TIME)[1]
                 except:
                     pass
 
@@ -146,13 +154,13 @@ class Player(object):
 
     def get_song_lenght(self):
         try:
-            return self.player.query_duration(self.time_format, None)[0]
+            return self.player.query_duration(Gst.Format.TIME)[1]
         except:
             return 0
 
     def seek(self, position):
 
-        self.player.seek(1.0, gst.FORMAT_TIME, gst.SEEK_FLAG_FLUSH, gst.SEEK_TYPE_SET, position, gst.SEEK_TYPE_NONE,0)
+        self.player.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, position)
 
     def set_volume(self, volume):
 
@@ -164,14 +172,14 @@ class Player(object):
 
     def is_playing(self):
 
-        self.state = self.player.get_state()[1]
+        self.state = self.player.get_state(0)[1]
         if self.state.value_nick == 'playing':
             return True
         return False
 
     def is_paused(self):
 
-        self.state = self.player.get_state()[1]
+        self.state = self.player.get_state(0)[1]
         if self.state.value_nick == 'paused':
             return True
         return False
@@ -211,6 +219,9 @@ class Player(object):
                     path = os.path.join(directory, file)
                     audiofile = eyed3.load(path)
 
+                    if audiofile is None:
+                        continue
+
                     if audiofile.tag.title:
                         title = audiofile.tag.title
                     else:
@@ -237,6 +248,10 @@ class Player(object):
             if name.find(format) != -1:
                 return True
         return False
+
+    def chunks(self, l, n):
+        n = max(1, n)
+        return (l[i:i+n] for i in xrange(0, len(l), n))
 
 
 if __name__ == "__main__":
