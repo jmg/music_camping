@@ -36,11 +36,12 @@ class Player(object):
             state_data = self.get_player_data()
 
             try:
+                a
                 response = requests.post("%s/player/state/" % (self.server_url, ), data={"data": json.dumps(state_data) })
                 data = response.json()
                 network_errors = 0
             except:
-                if network_errors < network_tries:
+                if network_errors < self.network_tries:
                     #keep trying until can reach the server
                     network_errors += 1
                     self.wait()
@@ -48,12 +49,15 @@ class Player(object):
 
                 network_errors = 0
 
-                if self.is_playing():
+                if self.is_playing() and not self.song_finished():
                     self.wait()
                     continue
 
                 #if max network_errors exceeded then shuffle playlist with local data
                 data = self.get_local_data()
+                if not data:
+                    self.wait()
+                    continue
 
             self.update_player(data)
             self.wait()
@@ -65,7 +69,10 @@ class Player(object):
     def get_local_data(self):
 
         if not self.songs_list:
-            self.songs_list = self.list_songs_dir(data["songs_directory"])
+            self.songs_list = self.list_songs_dir(config.DEFAULT_SONGS_DIR, analize_file=False)
+
+        if not self.songs_list:
+            return
 
         song = random.choice(self.songs_list)
 
@@ -248,7 +255,7 @@ class Player(object):
 
         return mins + ":" + segs
 
-    def list_songs_dir(self, songs_directory):
+    def list_songs_dir(self, songs_directory, analize_file=True):
 
         songs = []
         for directory, sub_folders, files in os.walk(songs_directory):
@@ -256,6 +263,11 @@ class Player(object):
                 if self.valid_format(file):
 
                     path = os.path.join(directory, file)
+
+                    if not analize_file:
+                        songs.append({"path": path })
+                        continue
+
                     audiofile = eyed3.load(path)
 
                     if audiofile is None:

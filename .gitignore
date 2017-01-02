@@ -6,6 +6,7 @@
 *.project
 .idea
 .DS_Store
+*config_local.py
 
 files/*
 
