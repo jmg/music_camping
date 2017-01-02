@@ -11,6 +11,7 @@ import config
 import os
 import eyed3
 import threading
+import random
 
 
 class Player(object):
@@ -19,12 +20,16 @@ class Player(object):
 
         self.server_url = config.SERVER_URL
         self.sleep_time = config.UPDATE_INTERVAL
+        self.network_tries = config.NETWORK_TRIES
 
         self.player = Gst.ElementFactory.make("playbin", "player")
         self.current_position = self.get_position(convert_time=False)
         self.current_song = None
+        self.songs_list = None
 
     def play_forever(self):
+
+        network_errors = 0
 
         while True:
 
@@ -33,47 +38,80 @@ class Player(object):
             try:
                 response = requests.post("%s/player/state/" % (self.server_url, ), data={"data": json.dumps(state_data) })
                 data = response.json()
+                network_errors = 0
             except:
-                print response.content
-                time.sleep(self.sleep_time)
-                continue
+                if network_errors < network_tries:
+                    #keep trying until can reach the server
+                    network_errors += 1
+                    self.wait()
+                    continue
 
-            print data
+                network_errors = 0
 
-            if data["state"] == "Playing":
-                if not self.is_playing() and data["path"]:
-                    self.play(data["path"])
+                if self.is_playing():
+                    self.wait()
+                    continue
 
-                elif data["path"] != self.current_song and data["path"]:
-                    self.stop()
-                    self.play(data["path"])
-                    self.current_song = data["path"]
+                #if max network_errors exceeded then shuffle playlist with local data
+                data = self.get_local_data()
 
-            elif data["state"] == "Paused":
-                self.pause()
+            self.update_player(data)
+            self.wait()
 
-            elif data["state"] == "Not Playing":
+    def wait(self):
+
+        time.sleep(self.sleep_time)
+
+    def get_local_data(self):
+
+        if not self.songs_list:
+            self.songs_list = self.list_songs_dir(data["songs_directory"])
+
+        song = random.choice(self.songs_list)
+
+        data = {
+            "path": song["path"],
+            "state": "Playing",
+        }
+
+        return data
+
+    def update_player(self, data):
+
+        print data
+
+        if data["state"] == "Playing":
+            if not self.is_playing() and data["path"]:
+                self.play(data["path"])
+
+            elif data["path"] != self.current_song and data["path"]:
                 self.stop()
+                self.play(data["path"])
+                self.current_song = data["path"]
 
-            if data.get("volume"):
-                self.set_volume(int(data["volume"]))
+        elif data["state"] == "Paused":
+            self.pause()
 
-            if data["position_changed"]:
-                self.seek(int(data["position"]))
+        elif data["state"] == "Not Playing":
+            self.stop()
 
-            if data["songs_directory_changed"]:
+        if data.get("volume"):
+            self.set_volume(int(data["volume"]))
 
-                def save_song():
-                    songs = self.list_songs_dir(data["songs_directory"])
-                    songs_lists = self.chunks(songs, 50)
-                    for songs_list in songs_lists:
-                        response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs_list) })
-                        print response.content
+        if data.get("position_changed"):
+            self.seek(int(data["position"]))
 
-                thread = threading.Thread(target=save_song)
-                thread.start()
+        if data.get("songs_directory_changed"):
 
-            time.sleep(self.sleep_time)
+            def save_song():
+                songs = self.list_songs_dir(data["songs_directory"])
+                songs_lists = self.chunks(songs, 50)
+                for songs_list in songs_lists:
+                    response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs_list) })
+                    print response.content
+
+            thread = threading.Thread(target=save_song)
+            thread.start()
 
     def song_finished(self):
 
