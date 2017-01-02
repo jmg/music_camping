@@ -2,6 +2,7 @@ import os.path
 from base import BaseView
 from django.contrib.auth import authenticate, login
 from music.services.config import ConfigService
+from music.services.song import SongService
 
 
 class LoginView(BaseView):
@@ -41,10 +42,20 @@ class LoadSongsView(BaseView):
         return self.json_response({"count": len(songs)})
 
 
-class SaveConfig(BaseView):
+class SaveConfigView(BaseView):
 
     def post(self, *args, **kwargs):
 
         ConfigService().save(self.request.POST)
+
+        return self.json_response({"status": "ok"})
+
+
+class DeleteAllSongsView(BaseView):
+
+    def post(self, *args, **kwargs):
+
+        for song in SongService().all():
+            song.delete()
 
         return self.json_response({"status": "ok"})

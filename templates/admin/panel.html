@@ -10,6 +10,14 @@
             //$.info(response.count + " new songs loaded");
         }, 'json');
     }
+
+    function deleteAllSongs() {
+
+        $.info("Deleting songs...");
+        $.post("/admin/deleteallsongs/", {}, function(response) {
+            $.info("Songs Deleted!");
+        });
+    }
 </script>
 {% endblock %}
 
@@ -21,7 +29,14 @@
 
     <div class="panel-body">
         <input id="music_dir" name="music_dir" class="form-control" value="{% if config.songs_directory %}{{config.songs_directory}}{% else %}{{home_dir}}/Music{% endif %}">
-        <button style="margin-top: 10px;" class="btn btn-primary" onclick="loadSongs()">Load Songs!</button>
+
+        <div>
+        <button style="margin-top: 10px;" class="btn btn-primary" onclick="loadSongs()"><i class="fa fa-upload"></i> Load Songs!</button>
+        </div>
+
+        <div>
+        <button style="margin-top: 5px;" class="btn btn-danger" onclick="deleteAllSongs()"><i class="fa fa-trash"></i> Delete All Songs</button>
+        </div>
     </div>
 </div>
 {% endblock %}
