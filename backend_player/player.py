@@ -36,7 +36,6 @@ class Player(object):
             state_data = self.get_player_data()
 
             try:
-                a
                 response = requests.post("%s/player/state/" % (self.server_url, ), data={"data": json.dumps(state_data) })
                 data = response.json()
                 network_errors = 0
