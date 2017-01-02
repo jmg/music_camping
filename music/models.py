@@ -32,7 +32,6 @@ class PlayList(models.Model):
     position = models.CharField(max_length=50, null=True, blank=True)
 
     position_changed = models.BooleanField(default=False)
-    song_changed = models.BooleanField(default=False)
 
     def is_playing(self):
 

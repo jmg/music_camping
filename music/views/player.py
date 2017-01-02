@@ -23,14 +23,10 @@ class StateView(BaseView):
             SongService().play_next_song(is_next=True)
 
         playlist = PlayListService().get_playlist()
-
-        song_changed = playlist.song_changed
         position_changed = playlist.position_changed
-
-        playlist.song_changed = False
         playlist.position_changed = False
 
-        if song_changed or position_changed:
+        if position_changed:
             playlist.save()
 
         config = ConfigService().get_one(id=1)
@@ -42,7 +38,6 @@ class StateView(BaseView):
 
         data = {
             "path": playlist.current_song.path if playlist.current_song else None,
-            "song_changed": song_changed,
             "position_changed": position_changed,
             "position": playlist.position,
             "state": playlist.state,

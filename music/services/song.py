@@ -12,18 +12,13 @@ class SongService(BaseService):
     entity = Song
     #player = player
 
-    def play_song(self, song_id, song_changed=False, callback=None):
+    def play_song(self, song_id, callback=None):
 
         playlist = PlayListService().get_playlist()
         song = Song.objects.get(id=song_id)
 
         #self.player.stop()
         #self.player.play(song.path, callback=callback)
-
-        if song_changed:
-            playlist.song_changed = True
-        else:
-            playlist.song_changed = playlist.current_song is not None and playlist.current_song.id != song.id
 
         playlist.current_song = song
         playlist.state = "Playing"
@@ -32,7 +27,7 @@ class SongService(BaseService):
     def play_next_song(self, is_next=True, is_prev=False):
 
         playlist_song = self.change_song(is_next=is_next, is_prev=is_prev)
-        self.play_song(playlist_song.song.id, song_changed=True)
+        self.play_song(playlist_song.song.id)
 
     def stop_song(self):
 
