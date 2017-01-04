@@ -58,4 +58,13 @@ class SaveSongsView(BaseView):
         songs = json.loads(self.request.POST.get("songs"))
         ConfigService().save_songs(songs)
 
-        return self.json_response({})
+        return self.json_response({"status": "success"})
+
+
+class RemoveMediaSongsView(BaseView):
+
+    def post(self, *args, **kwargs):
+
+        SongService().remove_media_songs()
+
+        return self.json_response({"status": "success"})

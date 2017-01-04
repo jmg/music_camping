@@ -176,3 +176,8 @@ class SongService(BaseService):
             playlist_song.sort = playlist_songs[song_data["new_position"]].sort
 
             playlist_song.save()
+
+    def remove_media_songs(self):
+
+        for song in SongService().filter(path__contains="/media/"):
+            song.delete()

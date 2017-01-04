@@ -12,6 +12,7 @@ import os
 import eyed3
 import threading
 import random
+from external_devices.detect_usb import UsbFinder
 
 
 class Player(object):
@@ -26,6 +27,7 @@ class Player(object):
         self.current_position = self.get_position(convert_time=False)
         self.current_song = None
         self.songs_list = []
+        self.usb_finder = UsbFinder()
 
     def play_forever(self):
 
@@ -67,7 +69,7 @@ class Player(object):
 
     def get_local_data(self):
 
-        if not self.songs_list:
+        if not self.songs_list or self.usb_finder.usb_changed():
             self.songs_list.extend(self.list_songs_dir(config.DEFAULT_SONGS_DIR, analize_file=False))
             self.songs_list.extend(self.list_songs_dir(config.DEFAULT_MEDIA_SONGS_DIR, analize_file=False))
 
@@ -111,11 +113,33 @@ class Player(object):
         if data.get("songs_directory_changed"):
             self.save_songs(data["songs_directory"])
 
-    def save_songs(self, songs_directory):
+        if self.usb_finder.usb_changed() == UsbFinder.USB_REMOVED:
+            self.remove_media_songs(config.DEFAULT_MEDIA_SONGS_DIR)
+
+        if self.usb_finder.usb_changed() == UsbFinder.USB_ADDED:
+            self.save_songs(config.DEFAULT_MEDIA_SONGS_DIR, retry=True)
+
+    def remove_media_songs(self, media_directory):
+
+        response = requests.post("%s/player/removemediasongs/" % (self.server_url, ))
+
+    def save_songs(self, songs_directory, retry=False):
 
         def save_song_async():
 
-            songs = self.list_songs_dir(songs_directory)
+            i = 0
+            while True:
+                songs = self.list_songs_dir(songs_directory)
+                if not retry or songs:
+                    break
+
+                if not songs:
+                    time.sleep(1)
+                    i += 1
+
+                if i >= 10:
+                    break
+
             songs_lists = self.chunks(songs, 50)
             for songs_list in songs_lists:
                 response = requests.post("%s/player/savesongs/" % (self.server_url, ), data={"songs": json.dumps(songs_list) })
